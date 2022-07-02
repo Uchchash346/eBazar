@@ -1,13 +1,21 @@
-import React, { useState } from 'react'
-import { client, urlFor } from '../../lib/client';
+import React, { useState } from 'react';
 import { AiOutlineMinus, AiOutlinePlus, AiFillStar, AiOutlineStar } from 'react-icons/ai';
+
+import { client, urlFor } from '../../lib/client';
 import { Product } from '../../components';
 import { useStateContext } from '../../context/StateContext';
 
 const ProductDetails = ({ product, products }) => {
     const { image, name, details, price } = product;
     const [index, setIndex] = useState(0);
-    const { decQty, incQty, qty, onAdd } = useStateContext();
+    const { decQty, incQty, qty, onAdd, setShowCart } = useStateContext();
+
+    const handleBuyNow = () => {
+        onAdd(product, qty);
+
+        setShowCart(true);
+    }
+
     return (
         <div>
             <div className="product-detail-container">
@@ -26,6 +34,7 @@ const ProductDetails = ({ product, products }) => {
                         ))}
                     </div>
                 </div>
+
                 <div className="product-detail-desc">
                     <h1>{name}</h1>
                     <div className="reviews">
@@ -52,15 +61,12 @@ const ProductDetails = ({ product, products }) => {
                         </p>
                     </div>
                     <div className="buttons">
-                        <button type="button" className="add-to-cart" onClick={() => onAdd(product, qty)}>
-                            Add To Cart
-                        </button>
-                        <button type="button" className="buy-now" onClick="">
-                            Buy Now
-                        </button>
+                        <button type="button" className="add-to-cart" onClick={() => onAdd(product, qty)}>Add to Cart</button>
+                        <button type="button" className="buy-now" onClick={handleBuyNow}>Buy Now</button>
                     </div>
                 </div>
             </div>
+
             <div className="maylike-products-wrapper">
                 <h2>You may also like</h2>
                 <div className="marquee">
@@ -77,12 +83,14 @@ const ProductDetails = ({ product, products }) => {
 
 export const getStaticPaths = async () => {
     const query = `*[_type == "product"] {
-      slug {
-        current
-      }
+    slug {
+      current
     }
-    `;
+  }
+  `;
+
     const products = await client.fetch(query);
+
     const paths = products.map((product) => ({
         params: {
             slug: product.slug.current
@@ -101,7 +109,9 @@ export const getStaticProps = async ({ params: { slug } }) => {
 
     const product = await client.fetch(query);
     const products = await client.fetch(productsQuery);
+
     console.log(product);
+
     return {
         props: { products, product }
     }
