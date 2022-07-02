@@ -1,11 +1,12 @@
 import React from 'react';
 import { loadStripe } from '@stripe/stripe-js';
+import Stripe from 'stripe';
 
-// Make sure to call `loadStripe` outside of a component’s render to avoid
-// recreating the `Stripe` object on every render.
-const stripePromise = loadStripe(
-    process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+// const stripePromise = loadStripe(
+//     process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+// );
 export default async function handler(req, res) {
     if (req.method === 'POST') {
         try {
@@ -15,7 +16,7 @@ export default async function handler(req, res) {
                 payment_method_types: ['card'],
                 billing_address_collection: 'auto',
                 shipping_options: [
-                    { shipping_rate: 'shr_1LGvIzLWA4NMH0y03B9I7eGe' },
+                    { shipping_rate: 'shr_1LH9UDLWA4NMH0y0curu4GTU' },
                 ],
                 line_items: req.body.map((item) => {
                     const img = item.image[0].asset._ref;
@@ -34,7 +35,6 @@ export default async function handler(req, res) {
                             enabled: true,
                             minimum: 1,
                         },
-                        tax_behavior: "exclusive",
                         quantity: item.quantity
                     }
                 }),
